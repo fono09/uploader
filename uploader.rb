@@ -66,17 +66,16 @@ get '/' do
 	@upfiles = Upfile.all
 	files = [];
 	@upfiles.each do |upfile|
-			files.push({
-				:id => upfile.id,
-				:name => upfile.name,
-				:comment => upfile.comment,
-				:dllocked => defined?(upfile.dlpass)?'true':'false',
-				:del_locked => defined?(upfile.delpass)?'true':'false';
-				:last_updated => upfile.last_updated.to_s,
-			});
+			data = {}
+			data[:id] = upfile.ROWID
+			data[:name] = upfile.name
+			data[:comment] = upfile.comment if upfile.comment
+			data[:dl_locked] = defined?(upfile.dlpass)
+			data[:del_locked] = defined?(upfile.delpass)
+			data[:last_updated] = upfile.last_updated.to_s
+			files.push(data);
 	end
 	files.to_json;
-
 end
 
 post '/' do
