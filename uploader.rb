@@ -68,15 +68,14 @@ get '/' do
 	@upfiles.each do |upfile|
 			files.push({
 				:id => upfile.id,
-				:locked => defined?(upfile.dlpass)?true:false,
-				:name => upfile.name
+				:name => upfile.name,
+				:comment => upfile.comment,
+				:dllocked => defined?(upfile.dlpass)?'true':'false',
+				:del_locked => defined?(upfile.delpass)?'true':'false';
+				:last_updated => upfile.last_updated.to_s,
 			});
 	end
 	files.to_json;
-
-end
-
-get '/:id' do 
 
 end
 
@@ -87,6 +86,7 @@ post '/' do
 
 	upfile_params={}
 	upfile_params[:name] = params[:body][:filename]
+	upfile_params[:body] = params[:body][:tmpfile]
 	upfile_params[:comment] = params[:comment] if params[:comment]
 	upfile_params[:delpass] = params[:delpass] if params[:delpass]
 	upfile_params[:dlpass] = params[:dlpass] if params[:dlpass]
@@ -94,11 +94,47 @@ post '/' do
 	upfile=Upfile.new(upfile_params)
 	upfile.encrypt
 	upfile.save
-	{result: 'success'}.to_json
+	{id: upfile.ROWID}.to_json
 end
-		
+
+get '/:id' do 
+	if upfile = Upfile.find(params['id']) then
+		401 unless upfile.dlpass
+		header['Content-Type'] = 'application/octet-stream'
+		header['Content-Disposition'] = 'attachment;filename='+upfile.name
+		upfile.body
+	else
+		404
+	end
+end
+
+post '/:id' do
+	if upfile = Upfile.find(params['id']) then
+		upfile.decrypt
+		if upfile.dlpass == params['password'] then
+			header['Content-type'] = 'application/octet-stream'
+			header['Content-Disposition'] = 'attachment;filename='+upfile.name
+			upfile.body
+		else
+			403
+		end
+	else
+		404
+	end
+end
+
 error 400 do
-	{result: 'failed'}.to_json
+	'Postdata Required'
+end
+	
+error 401 do
+	'Post Password Required'
 end
 
+error 403 do
+	'Password Authentication Failed'
+end
 
+error 404 do
+	'File Not Found'
+end
