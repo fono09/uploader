@@ -34,9 +34,9 @@ end
 
 class Upfile < ActiveRecord::Base
 	def encrypt 
-		[self.dlsalt,self.dlpass] = BFUtil.encrypt(self.dlpass,settings[:private_key]) if self.dlpass
+		self.dlsalt,self.dlpass = BFUtil.encrypt(self.dlpass,settings[:private_key]) if self.dlpass
 
-		[self.delsalt,self.delpass] = BFUtil.encrypt(self.delpass,settings[:private_key]) if self.delpass
+		self.delsalt,self.delpass = BFUtil.encrypt(self.delpass,settings[:private_key]) if self.delpass
 	end
 
 	def decrypt
