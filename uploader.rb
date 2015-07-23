@@ -67,7 +67,7 @@ get '/' do
 	files = [];
 	@upfiles.each do |upfile|
 			data = {}
-			data[:id] = upfile.ROWID
+			data[:id] = upfile.id
 			data[:name] = upfile.name
 			data[:comment] = upfile.comment if upfile.comment
 			data[:dl_locked] = defined?(upfile.dlpass)
@@ -75,10 +75,10 @@ get '/' do
 			data[:last_updated] = upfile.last_updated.to_s
 			files.push(data);
 	end
-	files.to_json;
+	files.to_json
 end
 
-post '/' do
+post '/upload' do
 	400 unless params[:body] && 
 		(tmpfile = params[:body][:tmpfile]) &&
 		(name = params[:body][:filename])
@@ -96,7 +96,7 @@ post '/' do
 	{id: upfile.ROWID}.to_json
 end
 
-get '/:id' do 
+get '/download/:id' do 
 	if upfile = Upfile.find(params['id']) then
 		401 unless upfile.dlpass
 		header['Content-Type'] = 'application/octet-stream'
@@ -107,7 +107,7 @@ get '/:id' do
 	end
 end
 
-post '/:id' do
+post '/download/:id' do
 	if upfile = Upfile.find(params['id']) then
 		upfile.decrypt
 		if upfile.dlpass == params['password'] then
