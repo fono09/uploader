@@ -34,15 +34,15 @@ end
 
 class Upfile < ActiveRecord::Base
 	def encrypt 
-		self.dlsalt,self.dlpass = BFUtil.encrypt(self.dlpass,settings[:private_key]) if self.dlpass
+		@dlsalt,@dlpass = BFUtil.encrypt(@dlpass,settings[:private_key]) if @dlpass
 
-		self.delsalt,self.delpass = BFUtil.encrypt(self.delpass,settings[:private_key]) if self.delpass
+		@delsalt,@delpass = BFUtil.encrypt(@delpass,settings[:private_key]) if @delpass
 	end
 
 	def decrypt
-		self.dlpass=BFUtil.decrypt(self.dlpass,settings[:private_key],self.dlsalt) if self.dlpass
+		@dlpass=BFUtil.decrypt(@dlpass,settings[:private_key],@dlsalt) if @dlpass
 
-		self.delpass=BFUtil.decrypt(self.delpass,settings[:private_key],self.delsalt) if self.delpass
+		@delpass=BFUtil.decrypt(@delpass,settings[:private_key],@delsalt) if @delpass
 	end
 end
 
@@ -79,32 +79,24 @@ get '/' do
 end
 
 post '/upload' do
-	400 unless params[:body] && 
-		(tmpfile = params[:body][:tmpfile]) &&
-		(name = params[:body][:filename])
-
+	400 unless params[:body]
 	upfile_params={}
 	upfile_params[:name] = params[:body][:filename]
-	upfile_params[:body] = params[:body][:tmpfile]
 	upfile_params[:comment] = params[:comment] if params[:comment]
 	upfile_params[:delpass] = params[:delpass] if params[:delpass]
 	upfile_params[:dlpass] = params[:dlpass] if params[:dlpass]
-
 	upfile=Upfile.new(upfile_params)
 	upfile.encrypt
 	upfile.save
-	{id: upfile.ROWID}.to_json
+
+	File.open("./src/#{upfile.id}","wb"){|f|f.write(params[:body][:tempfile].read)};
+	{id:upfile.id}.to_json
 end
 
 get '/download/:id' do 
-	if upfile = Upfile.find(params['id']) then
-		401 unless upfile.dlpass
-		header['Content-Type'] = 'application/octet-stream'
-		header['Content-Disposition'] = 'attachment;filename='+upfile.name
-		upfile.body
-	else
-		404
-	end
+	upfile = Upfile.find(params['id'])
+	401 unless upfile.dlpass
+	send_file "./src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream' 
 end
 
 post '/download/:id' do
@@ -122,18 +114,28 @@ post '/download/:id' do
 	end
 end
 
+get '/delete/:id' do
+	upfile = Upfile.find(params['id']);
+	401 unless upfile.dlpass
+	401 unless upfile.delpass
+	upfile.destroy
+end
+
 error 400 do
 	'Postdata Required'
 end
 	
 error 401 do
-	'Post Password Required'
+	'Password Post Required'
 end
 
 error 403 do
 	'Password Authentication Failed'
 end
 
+error ActiveRecord::RecordNotFound do
+	404
+end
 error 404 do
 	'File Not Found'
 end
