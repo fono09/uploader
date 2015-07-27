@@ -70,8 +70,8 @@ get '/' do
 			data[:id] = upfile.id
 			data[:name] = upfile.name
 			data[:comment] = upfile.comment if upfile.comment
-			data[:dl_locked] = defined?(upfile.dlpass)
-			data[:del_locked] = defined?(upfile.delpass)
+			data[:dl_locked] = (upfile.dlpass)? true : false
+			data[:del_locked] = (upfile.delpass)? true : false
 			data[:last_updated] = upfile.last_updated.to_s
 			files.push(data);
 	end
