@@ -6,6 +6,7 @@ require 'yaml'
 
 settings = YAML.load_file('settings.yml');
 
+ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.establish_connection(
 	adapter: 'sqlite3',
 	database: 'uploader.db'
@@ -46,6 +47,15 @@ class Upfile < ActiveRecord::Base
 	end
 end
 
+before do
+	if request.request_method == 'OPTIONS'
+		response.headers["Access-Control-Allow-Origin"] = "*"
+		response.headers["Access-Control-Allow-Methods"] = "POST"
+
+		halt 200
+	end
+end
+
 helpers do 
 	def auth(pass)
 		response = callcc do |cont|
@@ -56,24 +66,24 @@ helpers do
 			auth.opaque = $$.to_s
 			auth.call(request.env)
 		end
-		
+
 		401 if response.first == 401
 	end
 end
-		
+
 
 get '/' do
 	@upfiles = Upfile.all
 	files = [];
 	@upfiles.each do |upfile|
-			data = {}
-			data[:id] = upfile.id
-			data[:name] = upfile.name
-			data[:comment] = upfile.comment if upfile.comment
-			data[:dl_locked] = (upfile.dlpass)? true : false
-			data[:del_locked] = (upfile.delpass)? true : false
-			data[:last_updated] = upfile.last_updated.to_s
-			files.push(data);
+		data = {}
+		data[:id] = upfile.id
+		data[:name] = upfile.name
+		data[:comment] = upfile.comment if upfile.comment
+		data[:dl_locked] = (upfile.dlpass)? true : false
+		data[:del_locked] = (upfile.delpass)? true : false
+		data[:last_updated] = upfile.last_updated.to_s
+		files.push(data);
 	end
 	files.to_json
 end
@@ -124,7 +134,7 @@ end
 error 400 do
 	'Postdata Required'
 end
-	
+
 error 401 do
 	'Password Post Required'
 end

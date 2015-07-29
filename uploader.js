@@ -15,7 +15,7 @@ $(function(){
 			method: 'POST',
 			dataType: 'json',
 			contentType: false,
-			prosessData: false,
+			processData: false,
 			data: form_data,
 		}).done(function(result){
 			console.log('success',res);
