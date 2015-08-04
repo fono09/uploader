@@ -64,6 +64,10 @@ end
 
 
 get '/' do
+	send_file './view/index.html'
+end
+
+get '/list' do
 	@upfiles = Upfile.all
 	files = [];
 	@upfiles.each do |upfile|
