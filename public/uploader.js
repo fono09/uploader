@@ -1,3 +1,5 @@
+'use strict';
+
 $(function(){
 
 	$('#upfile').submit(function (event){
@@ -14,8 +16,10 @@ $(function(){
 			url: 'http://uploader.fono.jp/upload',
 			async: true,
 			xhr: function(){
-				__xhr__ = $.ajaxSettings.xhr();
-				__xhr__.upload.addEventListener("progress", updateProgressbar, false);
+				var __xhr__ = $.ajaxSettings.xhr();
+				__xhr__.upload.addEventListener("progress", function(e){
+					$(document).trigger('updateProgressbar', e);
+				}, false);
 				return __xhr__;
 			},
 			method: 'POST',
@@ -25,6 +29,7 @@ $(function(){
 			data: form_data,
 		}).done(function(result){
 			console.log('success',result);
+			$(document).trigger('drawTable');
 		}).fail(function(jqXHR, textStatus, errorThrown){
 			console.log('fail',jqXHR,textStatus,errorThrown);
 		});
@@ -36,6 +41,10 @@ $(function(){
 
 $(document).ready(function(){
 	
+	$(this).trigger('drawTable');
+}).on('drawTable', function(){
+	console.log('drawTable');
+	
 	$.ajax({
 		url: 'http://uploader.fono.jp/list',
 		async: true,
@@ -43,23 +52,37 @@ $(document).ready(function(){
 		dataType: 'json',
 	}).done(function(result){
 		console.log('success',result);
+		var table = $("#file_list");
+		table.empty();
+
+		result.forEach(function(row){
+			var tr = $('<tr>').prependTo(table);
+			var link = $('<a>').attr('href', '/download/' + row.id);
+			$('<td>').text(row.id).appendTo(tr);
+			$('<td>').append(link.text(row.name)).appendTo(tr);
+			$('<td>').text(row.comment).appendTo(tr);
+			$('<td>').text(row.del_locked?'locked':'free').appendTo(tr);
+			$('<td>').text(row.dl_locked?'locked':'free').appendTo(tr);
+		});
+
+		
+		var label = $('<tr>').prependTo(table);
+		$('<td>').text('ID').appendTo(label);
+		$('<td>').text('NAME').appendTo(label);
+		$('<td>').text('COMMENT').appendTo(label);
+		$('<td>').text('DEL').appendTo(label);
+		$('<td>').text('DL').appendTo(label);
+
 	}).fail(function(jqXHR, textStatus, errorThrown){
 		console.log('fail',jqXHR,textStatus,errorThrown);
 	});
 
 
-});
-	
-
-function updateProgressbar(e){
+}).on('updateProgressbar', function(d,e){
 
 	console.log((e.loaded / e.total)*100 + "%");
 	$('#upload_progress').val(Math.floor(e.loaded / e.total * 100));
 	
 	return e;
 
-}
-
-
-
-
+});

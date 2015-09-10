@@ -69,7 +69,7 @@ get '/list' do
 		data = {}
 		data[:id] = upfile.id
 		data[:name] = upfile.name
-		data[:comment] = upfile.comment if upfile.comment
+		data[:comment] = upfile.comment
 		data[:dl_locked] = (upfile.dlpass)? true : false
 		data[:del_locked] = (upfile.delpass)? true : false
 		data[:last_updated] = upfile.last_updated.to_s
@@ -79,12 +79,19 @@ get '/list' do
 end
 
 post '/upload' do
-	400 unless params[:body]
+	return 400 unless params[:body]
 	upfile_params={}
 	upfile_params[:name] = params[:body][:filename]
-	upfile_params[:comment] = params[:comment] if params[:comment]
-	upfile_params[:delpass] = params[:delpass] if params[:delpass]
-	upfile_params[:dlpass] = params[:dlpass] if params[:dlpass]
+	
+	upfile_params[:comment] = params[:comment] 
+	upfile_params[:comment] = nil if params[:comment]==""
+
+	upfile_params[:delpass] = params[:delpass]
+	upfile_params[:delpass] = nil if params[:delpass]==""
+	
+	upfile_params[:dlpass] = params[:dlpass]
+	upfile_params[:dlpass] = nil if params[:dlpass] == ""
+	
 	upfile=Upfile.new(upfile_params)
 	upfile.encrypt
 	upfile.save
@@ -95,29 +102,24 @@ end
 
 get '/download/:id' do 
 	upfile = Upfile.find(params['id'])
-	401 unless upfile.dlpass
+	return 401 if upfile.dlpass 
 	send_file "./src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream' 
 end
 
 post '/download/:id' do
-	if upfile = Upfile.find(params['id']) then
-		upfile.decrypt
-		if upfile.dlpass == params['password'] then
-			header['Content-type'] = 'application/octet-stream'
-			header['Content-Disposition'] = 'attachment;filename='+upfile.name
-			upfile.body
-		else
-			403
-		end
-	else
-		404
-	end
+	return 404 unless upfile = Upfile.find(params['id']) 
+	upfile.decrypt
+	return 403 unless upfile.dlpass == params['password'] 
+	header['Content-type'] = 'application/octet-stream'
+	header['Content-Disposition'] = 'attachment;filename='+upfile.name
+	upfile.body
 end
 
 get '/delete/:id' do
 	upfile = Upfile.find(params['id']);
-	401 unless upfile.dlpass
-	401 unless upfile.delpass
+	return 401 unless upfile.delpass
+	upfile.decrypt
+	return 401 if upfile.delpass == params['password']
 	upfile.destroy
 end
 
@@ -126,16 +128,17 @@ error 400 do
 end
 
 error 401 do
-	'Password Post Required'
+	'Authentication Failed'
 end
 
 error 403 do
-	'Password Authentication Failed'
+	'Forbidden'
 end
 
 error ActiveRecord::RecordNotFound do
 	404
 end
+
 error 404 do
 	'File Not Found'
 end
