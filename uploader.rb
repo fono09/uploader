@@ -4,6 +4,8 @@ require 'json'
 require 'openssl'
 require 'yaml'
 
+enable :sessions
+
 settings = YAML.load_file('settings.yml');
 
 ActiveRecord::Base.default_timezone = :local
@@ -12,54 +14,58 @@ ActiveRecord::Base.establish_connection(
 	database: 'uploader.db'
 )
 
-class BFUtil 
-	def self.encrypt(text,key)
-		cipher = OpenSSL::Cipher::Cipher.new("BF-CBC")
-		salt = OpenSSL::Random.random_bytes(8)
-		cipher.pkcs5_keyivgen(key,salt,1)
-		cipher.encrypt()
-		return [
-			salt,
-			cipher.update(text)+cipher.final
-		]
+class CryptUtil 
+
+	def self.make_salt
+		return OpenSSL::Random.random_bytes(32)
 	end
 
-	def self.decrypt(text,key,salt)
-		cipher = OpenSSL::Cipher::Cipher.new("BF-CBC")
-		cipher.decrypt()
-		cipher.pkcs5_keyivgen(key,salt,1)
-
-		return cipher.update(text)+cipher.final
+	def self.encrypt(key,salt)
+		iter = 20000
+		digest = OpenSSL::Digest::SHA256.new
+		len = digest.digest_length
+		value = OpenSSL::PKCS5.pbkdf2_hmac(key,salt,iter,len,digest)
+		return value
 	end
+
+	def self.compare(key_a,key_b)
+		unless key_a.length == key_b.length
+			return false
+		end
+
+		arr = key_b.bytes.to_a
+		result = 0
+		key_a.bytes.each_with_index do |b,i|
+			result |= b ^ arr[i]
+		end
+		
+		result == 0
+	end
+
 end
 
 class Upfile < ActiveRecord::Base
-	def encrypt 
-		@dlsalt,@dlpass = BFUtil.encrypt(@dlpass,settings[:private_key]) if @dlpass
 
-		@delsalt,@delpass = BFUtil.encrypt(@delpass,settings[:private_key]) if @delpass
-	end
-
-	def decrypt
-		@dlpass=BFUtil.decrypt(@dlpass,settings[:private_key],@dlsalt) if @dlpass
-
-		@delpass=BFUtil.decrypt(@delpass,settings[:private_key],@delsalt) if @delpass
-	end
-end
-
-helpers do 
-	def auth(pass)
-		response = callcc do |cont|
-			auth = Rack::Auth::Digest::MD5.new(cont,"Input Password") do |username|
-				pass
-			end
-
-			auth.opaque = $$.to_s
-			auth.call(request.env)
+	def encrypt!
+		if self.dlpass then
+			self.dlsalt = CryptUtil.make_salt
+			self.dlpass = CryptUtil.encrypt(self.dlpass,self.dlsalt)
 		end
-
-		401 if response.first == 401
+		
+		if self.delpass then
+			self.delsalt = CryptUtil.make_salt
+			self.delpass = CryptUtil.encrypt(self.delpass,self.delsalt)
+		end
 	end
+
+	def compare_dlpass(key)
+		return CryptUtil.compare(CryptUtil.encrypt(key,self.dlsalt),self.dlpass)
+	end
+
+	def compare_delpass(key)
+		return CryptUtil.compare(CryptUtil.encrypt(key,self.delsalt),self.delpass)
+	end
+
 end
 
 get '/list' do
@@ -93,38 +99,42 @@ post '/upload' do
 	upfile_params[:dlpass] = nil if params[:dlpass] == ""
 	
 	upfile=Upfile.new(upfile_params)
-	upfile.encrypt
+	upfile.encrypt!
 	upfile.save
 
 	File.open("./src/#{upfile.id}","wb"){|f|f.write(params[:body][:tempfile].read)};
 	{id:upfile.id}.to_json
 end
 
+post '/download/:id' do
+	upfile = Upfile.find(params['id'])
+
+	return 405 if !upfile.dlpass || params['dlpass']=="" || params['dlpass']==nil
+	return 401 unless upfile.compare_dlpass(params['dlpass'])
+	session[params['id']] = true
+	{id:params['id']}.to_json
+end
+
 get '/download/:id' do 
 	upfile = Upfile.find(params['id'])
-	return 401 if upfile.dlpass 
-	send_file "./src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream' 
+	
+	unless upfile.dlpass then
+		send_file "./src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream' 
+	else
+		return 405 unless session[params['id']]
+		send_file "./src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream' 
+	end
 end
 
-post '/download/:id' do
-	return 404 unless upfile = Upfile.find(params['id']) 
-	upfile.decrypt
-	return 403 unless upfile.dlpass == params['password'] 
-	header['Content-type'] = 'application/octet-stream'
-	header['Content-Disposition'] = 'attachment;filename='+upfile.name
-	upfile.body
-end
-
-get '/delete/:id' do
+post '/delete/:id' do
 	upfile = Upfile.find(params['id']);
 	return 401 unless upfile.delpass
-	upfile.decrypt
-	return 401 if upfile.delpass == params['password']
+	return 401 unless upfile.compare_delpass(params['delpass'])
 	upfile.destroy
 end
 
 error 400 do
-	'Postdata Required'
+	'Bad Request'
 end
 
 error 401 do
@@ -135,10 +145,16 @@ error 403 do
 	'Forbidden'
 end
 
+error 404 do
+	'Not Found'
+end
+
+error 405 do
+	'Method Not Allowed'
+end
+
 error ActiveRecord::RecordNotFound do
 	404
 end
 
-error 404 do
-	'File Not Found'
-end
+

@@ -57,7 +57,15 @@ $(document).ready(function(){
 
 		result.forEach(function(row){
 			var tr = $('<tr>').prependTo(table);
-			var link = $('<a>').attr('href', '/download/' + row.id);
+
+			var link;
+			if(row.dl_locked){
+				link = $('<a>').attr('href','javascript:ajaxPostDownload(' + row.id + ');');
+			}else{
+				link = $('<a>').attr('href', '/download/' + row.id);
+			}
+			link.text(row.name);
+
 			$('<td>').text(row.id).appendTo(tr);
 			$('<td>').append(link.text(row.name)).appendTo(tr);
 			$('<td>').text(row.comment).appendTo(tr);
@@ -86,3 +94,20 @@ $(document).ready(function(){
 	return e;
 
 });
+function ajaxPostDownload(id){
+	console.log('ajaxPostDownload(id)');
+	
+	var dlpass = window.prompt('Download Password Required','');
+	$.ajax({
+		url: 'http://uploader.fono.jp/download/'+id,
+		method: 'POST',
+		dataType: 'json',
+		data: 'dlpass='+dlpass,
+	}).done(function(result){
+		console.log('sessionWriteSuccess',result);
+		location.href='http://uploader.fono.jp/download/'+id;
+	}).fail(function(result){
+		console.log('sessionWriteFail',result);
+		alert('Authentication Failed');
+	});
+}
