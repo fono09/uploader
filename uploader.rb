@@ -109,8 +109,8 @@ post '/download/:id' do
 
 	return 405 if !upfile.dlpass || params['dlpass']=="" || params['dlpass']==nil
 	return 401 unless upfile.compare_dlpass(params['dlpass'])
-	session[params['id']] = true
-	{id:params['id']}.to_json
+	session[upfile.id] = true
+	{id: upfile.id}.to_json
 end
 
 get '/download/:id' do 
@@ -128,6 +128,7 @@ post '/delete/:id' do
 	upfile = Upfile.find(params['id']);
 	return 401 unless upfile.delpass
 	return 401 unless upfile.compare_delpass(params['delpass'])
+	File.delete("./src/#{upfile.id}");
 	upfile.destroy
 end
 
