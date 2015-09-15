@@ -6,8 +6,6 @@ require 'yaml'
 
 enable :sessions
 
-settings = YAML.load_file('settings.yml');
-
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.establish_connection(
 	adapter: 'sqlite3',
