@@ -70,6 +70,7 @@ $(document).ready(function(){
 			$('<td>').text(row.id).appendTo(tr);
 			$('<td>').append(dl_link).appendTo(tr);
 			$('<td>').text(row.comment).appendTo(tr);
+			$('<td>').text(row.last_updated).appendTo(tr);
 
 			if(row.del_locked){
 				$('<td>').append(del_link).appendTo(tr);
@@ -85,6 +86,7 @@ $(document).ready(function(){
 		$('<td>').text('ID').appendTo(label);
 		$('<td>').text('NAME').appendTo(label);
 		$('<td>').text('COMMENT').appendTo(label);
+		$('<td>').text('DATE').appendTo(label);
 		$('<td>').text('DEL').appendTo(label);
 		$('<td>').text('DL').appendTo(label);
 
