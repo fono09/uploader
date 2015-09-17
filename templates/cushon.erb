@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>Download <%= @name %></title>
+<script type="text/javascript" src="jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="uploader.js"></script>
+<meta charset="UTF-8">
+<meta name="twitter:card" content="<%= (!@dlpass && @image) ? "summary" : "summary_large_image" %>">
+<meta name="twitter:title" content="Download <%= @name %>">
+<meta name="twitter:description" content="Download <%= @name %> Last updated:<%= @last_updated %> Download Password:<%= @dlpass?"Locked":"Free" %>">
+<% if !@dlpass && @image then %>
+	<meta name="twitter:image" content="https://fono.jp/download/<%= @id %>">
+<% end %>
+</head>
+<body>
+This is testpage!!!!
+</body>
+</html>
+

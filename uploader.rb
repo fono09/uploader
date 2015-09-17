@@ -3,8 +3,11 @@ require 'sinatra'
 require 'json'
 require 'openssl'
 require 'yaml'
+require 'erb'
+require 'shared-mime-info'
 
 enable :sessions
+set :views, settings.root + '/templates'
 
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.establish_connection(
@@ -125,12 +128,24 @@ get '/download/:id' do
 end
 
 post '/delete/:id' do
-	upfile = Upfile.find(params['id']);
+	upfile = Upfile.find(params['id'])
 	return 401 unless upfile.delpass
 	return 401 unless upfile.compare_delpass(params['delpass'])
-	File.delete("./src/#{upfile.id}");
+	File.delete("./src/#{upfile.id}")
 	upfile.destroy
 end
+
+get '/cushon/:id' do
+	upfile = Upfile.find(params['id'])
+	@id = upfile.id
+	@name = upfile.name
+	@last_updated = upfile.last_updated.to_s
+	@dlpass = upfile.dlpass ? true : false
+	@image = (MIME.check("./src/#{upfile.id}").content_type =~ /image/) ? true : false
+	erb :cushon
+end
+
+
 
 error 400 do
 	'Bad Request'
