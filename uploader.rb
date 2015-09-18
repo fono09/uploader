@@ -3,11 +3,13 @@ require 'sinatra'
 require 'json'
 require 'openssl'
 require 'yaml'
-require 'erb'
+require 'erubis'
 require 'shared-mime-info'
+require 'rmagick'
 
 enable :sessions
 set :views, settings.root + '/templates'
+set :erb, :escape_html => true
 
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.establish_connection(
@@ -116,15 +118,19 @@ post '/download/:id' do
 	{id: upfile.id}.to_json
 end
 
-get '/download/:id' do 
-	upfile = Upfile.find(params['id'])
-	
-	unless upfile.dlpass then
+get /\/download\/([\d]+)(|:mime)/ do |id,mime| 
+	upfile = Upfile.find(id)
+
+	if upfile.dlpass then
+		return 405 unless session[params['id']]
+	end
+
+	if mime==""  then
 		send_file "./src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream' 
 	else
-		return 405 unless session[params['id']]
-		send_file "./src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream' 
+		send_file "./src/#{upfild.id}",:filename => upfile.name, :type=> MIME.check("./src/#{upfile.id}").content_type
 	end
+
 end
 
 post '/delete/:id' do
@@ -141,7 +147,19 @@ get '/cushon/:id' do
 	@name = upfile.name
 	@last_updated = upfile.last_updated.to_s
 	@dlpass = upfile.dlpass ? true : false
-	@image = (MIME.check("./src/#{upfile.id}").content_type =~ /image/) ? true : false
+	@comment = upfile.comment
+	if !upfile.dlpass && MIME.check("./src/#{upfile.id}").content_type =~ /image/ && File.size("./src/#{upfile.id}")>= 10**6 && !File.exist?("./public/thumbs/#{upfile.id}") then
+		img = Magick::Image.read("./src/#{upfile.id}").first
+		img.resize!(10**6/img.filesize.to_f)
+		img.write("jpeg:"+"./public/thumbs/#{upfile.id}");
+	end
+
+	if File.exists?("./public/thumbs/#{upfile.id}") then
+		@image = "https://uploader.fono.jp/thumbs/#{upfile.id}"
+	else
+		@image = "https://uploader.fono.jp/download/#{upfile.id}:mime"
+	end
+
 	erb :cushon
 end
 

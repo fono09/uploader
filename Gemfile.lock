@@ -16,6 +16,7 @@ GEM
       tzinfo (~> 1.1)
     arel (6.0.0)
     builder (3.2.2)
+    erubis (2.7.0)
     i18n (0.7.0)
     json (1.8.3)
     mime-types (2.6.2)
@@ -23,6 +24,7 @@ GEM
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
+    rmagick (2.15.4)
     shared-mime-info (0.2.5)
     sinatra (1.4.6)
       rack (~> 1.4)
@@ -39,8 +41,10 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
+  erubis
   json
   mime-types
+  rmagick
   shared-mime-info
   sinatra
   sqlite3
