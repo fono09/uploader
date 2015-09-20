@@ -40,8 +40,15 @@ $(function(){
 });
 
 $(document).ready(function(){
-	
-	$(this).trigger('drawTable');
+
+	if($("#file_list").length){
+		$(this).trigger('drawTable');
+	}	
+
+	if($("#upfile_data").length){
+		$(this).trigger('drawCushonDownload');
+	}
+
 }).on('drawTable', function(){
 	console.log('drawTable');
 	
@@ -58,9 +65,9 @@ $(document).ready(function(){
 		result.forEach(function(row){
 			var tr = $('<tr>').prependTo(table);
 
-			var dl_link = $('<a>').attr('href','/download/' + row.id);
+			var dl_link = $('<a>').attr('href','/download/' + row.id).on('click',judgeDownloadLink);
 			if(row.dl_locked){
-				dl_link.on('click', function(e){ e.preventDefault(); ajaxPostDownload(row.id) });
+				dl_link.addClass('dl_locked');
 			}
 			dl_link.text(row.name);
 
@@ -103,6 +110,18 @@ $(document).ready(function(){
 	return e;
 
 });
+
+
+function judgeDownloadLink(e){
+
+	console.log(e);
+	if(e.target.className=='dl_locked'){
+		e.preventDefault();
+		ajaxPostDownload(e.target.href.match(/\/(\d+)/)[1]);
+	}else{
+		return true;
+	}
+}
 
 function ajaxPostDownload(id){
 	console.log('ajaxPostDownload('+id+')');

@@ -69,24 +69,35 @@ class Upfile < ActiveRecord::Base
 		return CryptUtil.compare(CryptUtil.encrypt(key,self.delsalt),self.delpass)
 	end
 
+	def to_hash_for_output
+		return {
+			id: self.id,
+			name: self.name,
+			comment: self.comment,
+			dl_locked: (self.dlpass)? true : false,
+			del_locked: (self.delpass)? true : false,
+			last_updated: self.last_updated.to_s,
+		}
+	end
+
 end
 
 get '/list' do
 	@upfiles = Upfile.all
 	files = [];
 	@upfiles.each do |upfile|
-		data = {}
-		data[:id] = upfile.id
-		data[:name] = upfile.name
-		data[:comment] = upfile.comment
-		data[:dl_locked] = (upfile.dlpass)? true : false
-		data[:del_locked] = (upfile.delpass)? true : false
-		data[:last_updated] = upfile.last_updated.to_s
-		files.push(data);
+		files.push(upfile.to_hash_for_output);
 	end
 	files.to_json
 end
 
+get '/show/:id' do
+	upfile = Upfile.find(params['id'])
+	upfile.to_hash_for_output.to_json
+end
+	
+
+	
 post '/upload' do
 	return 400 unless params[:body]
 	upfile_params={}
@@ -115,14 +126,14 @@ post '/download/:id' do
 	return 405 if !upfile.dlpass || params['dlpass']=="" || params['dlpass']==nil
 	return 401 unless upfile.compare_dlpass(params['dlpass'])
 	session[upfile.id] = true
-	{id: upfile.id}.to_json
+	{id: upfile.id, session: session }.to_json
 end
 
 get /\/download\/([\d]+)(|:mime)/ do |id,mime| 
 	upfile = Upfile.find(id)
 
 	if upfile.dlpass then
-		return 405 unless session[params['id']]
+		return 405 unless session[id]
 	end
 
 	if mime==""  then

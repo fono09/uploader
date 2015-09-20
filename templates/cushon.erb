@@ -13,7 +13,11 @@
 <% end %>
 </head>
 <body>
-This is testpage!!!!
+<a href="/download/<%= @id %>" <% if @dlpass then %>class="dl_locked"<% end %>>Download <%= @name %></a><br>
+
+<% if !@dlpass && @image then %>
+<img src="<%= @image =%>">
+<% end %>
 </body>
 </html>
 
