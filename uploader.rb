@@ -197,7 +197,7 @@ error 405 do
 end
 
 error ActiveRecord::RecordNotFound do
-	404
+	redirect 404
 end
 
 
