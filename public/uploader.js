@@ -86,6 +86,7 @@ $(document).ready(function(){
 			}
 
 			$('<td>').text(row.dl_locked?'locked':'free').appendTo(tr);
+			$('<td>').html('<a href="https://twitter.com/share" class="twitter-share-button" data-url="https://uploader.fono.jp/cushon/'+row.id+'" data-text="Download '+row.name+'">Tweet</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</script>').appendTo(tr);
 		});
 
 		
@@ -96,6 +97,7 @@ $(document).ready(function(){
 		$('<td>').text('DATE').appendTo(label);
 		$('<td>').text('DEL').appendTo(label);
 		$('<td>').text('DL').appendTo(label);
+		$('<td>').text('TWEET').appendTo(label);
 
 	}).fail(function(jqXHR, textStatus, errorThrown){
 		console.log('fail',jqXHR,textStatus,errorThrown);
