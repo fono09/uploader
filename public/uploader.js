@@ -34,12 +34,19 @@ $(function(){
 			console.log('fail',jqXHR,textStatus,errorThrown);
 		});
 
+		$('#upfile')[0].reset();
+		$(document).trigger('drawTable');
+
 		return false;
 	});
 
 });
 
 $(document).ready(function(){
+
+	if($('#upload_progress').length){
+		$(this).trigger('updateProgressbar');
+	}
 
 	if($("#file_list").length){
 		$(this).trigger('drawTable');
@@ -106,9 +113,13 @@ $(document).ready(function(){
 
 }).on('updateProgressbar', function(d,e){
 
-	console.log((e.loaded / e.total)*100 + "%");
-	$('#upload_progress').val(Math.floor(e.loaded / e.total * 100));
-	
+	if(e == void(0)){
+		$('#upload_progress').val(false);
+	}else{
+		console.log((e.loaded / e.total)*100 + "%");
+		$('#upload_progress').val(Math.floor(e.loaded / e.total * 100));
+	}
+
 	return e;
 
 });
