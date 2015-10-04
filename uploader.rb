@@ -6,8 +6,11 @@ require 'yaml'
 require 'erubis'
 require 'shared-mime-info'
 require 'rmagick'
+require 'securerandom'
 
 enable :sessions
+set :session_secret, SecureRandom.hex(100) 
+
 set :views, settings.root + '/templates'
 set :erb, :escape_html => true
 
@@ -100,6 +103,7 @@ end
 	
 post '/upload' do
 	return 400 unless params[:body]
+
 	upfile_params={}
 	upfile_params[:name] = params[:body][:filename]
 	
@@ -112,11 +116,14 @@ post '/upload' do
 	upfile_params[:dlpass] = params[:dlpass]
 	upfile_params[:dlpass] = nil if params[:dlpass] == ""
 	
-	upfile=Upfile.new(upfile_params)
+	return 400 if params[:body][:tempfile].size > 10**9
+
+	upfile = Upfile.new(upfile_params)
 	upfile.encrypt!
 	upfile.save
 
-	File.open("./src/#{upfile.id}","wb"){|f|f.write(params[:body][:tempfile].read)};
+	File.open("./src/#{upfile.id}","wb"){|f| f.write(params[:body][:tempfile].read)}
+
 	{id:upfile.id}.to_json
 end
 

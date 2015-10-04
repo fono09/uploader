@@ -32,6 +32,7 @@ $(function(){
 			$(document).trigger('drawTable');
 		}).fail(function(jqXHR, textStatus, errorThrown){
 			console.log('fail',jqXHR,textStatus,errorThrown);
+			alert('Uploading Failed!!');
 		});
 
 		$('#upfile')[0].reset();
