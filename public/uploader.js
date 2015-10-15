@@ -53,9 +53,10 @@ $(document).ready(function(){
 		$(this).trigger('drawTable');
 	}	
 
-	if($("#upfile_data").length){
-		$(this).trigger('drawCushonDownload');
+	if($(".dl_locked").length){
+		$(this).trigger('setLockedLink')
 	}
+
 
 }).on('drawTable', function(){
 	console.log('drawTable');
@@ -73,7 +74,7 @@ $(document).ready(function(){
 		result.forEach(function(row){
 			var tr = $('<tr>').prependTo(table);
 
-			var dl_link = $('<a>').attr('href','/download/' + row.id).on('click',judgeDownloadLink);
+			var dl_link = $('<a>').attr('href','/download/' + row.id)//.on('click',judgeDownloadLink);
 			if(row.dl_locked){
 				dl_link.addClass('dl_locked');
 			}
@@ -123,7 +124,11 @@ $(document).ready(function(){
 
 	return e;
 
-});
+}).on('setLockedLink', function(d,e){
+
+	$('.dl_locked').on('click',judgeDownloadLink)
+
+})
 
 
 function judgeDownloadLink(e){

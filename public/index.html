@@ -5,26 +5,21 @@
 <meta charset="UTF-8">
 <script type="text/javascript" src="jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="uploader.js"></script>
-<link rel="stylesheet" href="https://fono.jp/main.files/main.css" >
 </head>
 <body>
+<h1>Uploader(v0.81 - beta)</h1>
+<p> bug report : fono(a t)fono(dot)jp </p>
+<form id="upfile" method="post" action="#">
+	<input type="file" name="body">
+	<label>comment:<input type="comment" name="comment"></label>
+	<label>delpass:<input type="password" name="delpass"></label>
+	<label>dlpass:<input type="password" name="dlpass"></label>
+	<input type="submit" value="upload">
+	<progress max="100" id="upload_progress">現在、アップロード中です</progress>
+</form>
+<table id="file_list">
+</table>
 
-<div id="bd">
-
-	<div id="logotxt"><h1>Uploader(Beta)</h1></div><br>
-	<div id="sincetxt">uploader.fono.jp since October,4th,2015</div>
-	<form id="upfile" method="post" action="#">
-		<input type="file" name="body">
-		<label>comment:<input type="comment" name="comment"></label>
-		<label>delpass:<input type="password" name="delpass"></label>
-		<label>dlpass:<input type="password" name="dlpass"></label>
-		<input type="submit" value="upload">
-		<progress max="100" id="upload_progress">現在、アップロード中です</progress>
-	</form>
-	<table id="file_list">
-	</table>
-
-</div>
 </body>
 </html>
 

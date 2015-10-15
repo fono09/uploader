@@ -21,6 +21,8 @@ ActiveRecord::Base.establish_connection(
 	database: 'uploader.db'
 )
 
+secret = YAML.load_file("./settings.yml")["secret"]
+
 class CryptUtil 
 
 	def self.make_salt
@@ -129,19 +131,24 @@ post '/upload' do
 end
 
 post '/download/:id' do
+	if params['id'] == 'manager' then
+		session['manager'] = true
+		return {manager: true}.to_json
+	end
+		
 	upfile = Upfile.find(params['id'])
 
 	return 405 if !upfile.dlpass || params['dlpass']=="" || params['dlpass']==nil
 	return 401 unless upfile.compare_dlpass(params['dlpass'])
 	session[upfile.id] = true
-	{id: upfile.id, session: session }.to_json
+	{id: upfile.id }.to_json
 end
 
 get /\/download\/([\d]+)(|:mime)/ do |id,mime| 
 	upfile = Upfile.find(id)
 
 	if upfile.dlpass then
-		return 405 unless session[id]
+		redirect to('/cushon/'+id) unless session[id]
 	end
 
 	if mime==""  then
@@ -152,10 +159,16 @@ get /\/download\/([\d]+)(|:mime)/ do |id,mime|
 
 end
 
+get '/download/manager' do
+	redirect to('/')
+end
+
 post '/delete/:id' do
 	upfile = Upfile.find(params['id'])
-	return 401 unless upfile.delpass
-	return 401 unless upfile.compare_delpass(params['delpass'])
+	unless session['manager'] then
+		return 401 unless upfile.delpass 
+		return 401 unless upfile.compare_delpass(params['delpass'])
+	end
 	File.delete("./src/#{upfile.id}")
 	upfile.destroy
 end

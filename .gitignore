@@ -1,4 +1,5 @@
 vendor/
 uploader.db
+settings.yml
 src/
 public/thumbs/
