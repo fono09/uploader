@@ -74,9 +74,9 @@ $(document).ready(function(){
 		result.forEach(function(row){
 			var tr = $('<tr>').prependTo(table);
 
-			var dl_link = $('<a>').attr('href','/download/' + row.id)//.on('click',judgeDownloadLink);
+			var dl_link = $('<a>').attr('href','/download/' + row.id);
 			if(row.dl_locked){
-				dl_link.addClass('dl_locked');
+				dl_link.addClass('dl_locked').on('click',function(e){ e.preventDefault(); ajaxPostDownload(row.id) });
 			}
 			dl_link.text(row.name);
 
@@ -115,33 +115,23 @@ $(document).ready(function(){
 
 }).on('updateProgressbar', function(d,e){
 
+
 	if(e == void(0)){
 		$('#upload_progress').val(false);
 	}else{
 		console.log((e.loaded / e.total)*100 + "%");
 		$('#upload_progress').val(Math.floor(e.loaded / e.total * 100));
+		console.log(d,e);
 	}
 
 	return e;
 
 }).on('setLockedLink', function(d,e){
+	
+	$('.dl_locked').on('click',function(e){ e.preventDefault(); e.currentTarget.href.match(/\/(\d+)$/); ajaxPostDownload(RegExp.$1) });
 
-	$('.dl_locked').on('click',judgeDownloadLink)
-
-})
-
-
-function judgeDownloadLink(e){
-
-	console.log(e);
-	if(e.target.className=='dl_locked'){
-		e.preventDefault();
-		ajaxPostDownload(e.target.href.match(/\/(\d+)/)[1]);
-	}else{
-		return true;
-	}
-}
-
+});
+	
 function ajaxPostDownload(id){
 	console.log('ajaxPostDownload('+id+')');
 	
