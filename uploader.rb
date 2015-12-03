@@ -135,7 +135,7 @@ post '/upload' do
 end
 
 post '/download/:id' do
-	if params['id'] == 'manager' then
+	if params['id'] == 'manager' && params['dlpass'] == secret then
 		session['manager'] = true
 		return {manager: true}.to_json
 	end

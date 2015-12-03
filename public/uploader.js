@@ -8,17 +8,18 @@ $(function(){
 
 		var form = $('#upfile').get(0);
 		var form_data = new FormData(form);
-
-		console.log(form);
 		console.log(form_data);
 
+		var token = ['up'+genUID(),$('[name=body]').prop('files')[0].name];
+		console.log(token)
+		
 		$.ajax({
 			url: 'https://uploader.fono.jp/upload',
 			async: true,
 			xhr: function(){
 				var __xhr__ = $.ajaxSettings.xhr();
 				__xhr__.upload.addEventListener("progress", function(e){
-					$(document).trigger('updateProgressbar', e);
+					$(document).trigger('updateProgressbar',[e,token]);
 				}, false);
 				return __xhr__;
 			},
@@ -119,9 +120,10 @@ $(document).ready(function(){
 	});
 
 
-}).on('updateProgressbar', function(d,e){
+}).on('updateProgressbar', function(d,e,token){
 
-
+	console.log(token);
+	
 	if(e == void(0)){
 		$('#upload_progress').val(false);
 	}else{
@@ -137,6 +139,13 @@ $(document).ready(function(){
 	$('.dl_locked').on('click',function(e){ e.preventDefault(); e.currentTarget.href.match(/\/(\d+)$/); ajaxPostDownload(RegExp.$1) });
 
 });
+
+function genUID(){
+	var rand = Math.floor(Math.random()*1000)
+	var date = new Date();
+	var time = date.getTime();
+	return rand + time.toString();
+}
 	
 function ajaxPostDownload(id){
 	console.log('ajaxPostDownload('+id+')');
