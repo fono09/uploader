@@ -1,5 +1,6 @@
 require 'active_record'
 require 'sinatra'
+require 'sinatra/xsendfile'
 require 'json'
 require 'openssl'
 require 'yaml'
@@ -10,6 +11,9 @@ require 'securerandom'
 
 enable :sessions
 set :session_secret, SecureRandom.hex(100) 
+
+Sinatra::Xsendfile.replace_send_file!
+
 
 set :views, settings.root + '/templates'
 set :erb, :escape_html => true
@@ -147,14 +151,14 @@ end
 get /\/download\/([\d]+)(|:mime)/ do |id,mime| 
 	upfile = Upfile.find(id)
 
-	if upfile.dlpass then
-		redirect to('/cushon/'+id) unless session[id]
+	if upfile.dlpass && !session[upfile.id] then
+		redirect to('/cushon/'+upfile.id.to_s)
 	end
 
-	if mime==""  then
-		send_file "./src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream' 
+	if mime=="" then
+		send_file "../src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream', :stream => true
 	else
-		send_file "./src/#{upfild.id}",:filename => upfile.name, :type=> MIME.check("./src/#{upfile.id}").content_type
+		send_file "../src/#{upfild.id}",:filename => upfile.name, :type=> MIME.check("./src/#{upfile.id}").content_type, :stream => true
 	end
 
 end

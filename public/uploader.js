@@ -83,6 +83,12 @@ $(document).ready(function(){
 			var del_link = $('<a>').attr('href','#').on('click',function(e){ e.preventDefault(); ajaxPostDelete(row.id) });
 			del_link.text('locked');
 
+			var tw_link = $('<a>').attr('href',
+				'https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Fuploader.fono.jp%2F&ref_src=twsrc%5Etfw&text=Download%20'
+				+ row.name
+				+ '&url=https%3A%2F%2Fuploader.fono.jp%2Fcushon%2F'
+				+ row.id).text('Tweet');
+
 			$('<td>').text(row.id).appendTo(tr);
 			$('<td>').append(dl_link).appendTo(tr);
 			$('<td>').text(row.comment).appendTo(tr);
@@ -95,7 +101,7 @@ $(document).ready(function(){
 			}
 
 			$('<td>').text(row.dl_locked?'locked':'free').appendTo(tr);
-			$('<td>').html('<a href="https://twitter.com/share" class="twitter-share-button" data-url="https://uploader.fono.jp/cushon/'+row.id+'" data-text="Download '+row.name+'">Tweet</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</script>').appendTo(tr);
+			$('<td>').append(tw_link).appendTo(tr);
 		});
 
 		
