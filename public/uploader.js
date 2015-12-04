@@ -73,7 +73,7 @@ $(document).ready(function(){
 		for(var i=0; i < result.pages; i++){
 			$('<button>').attr('onclick','$(document).trigger(\'drawTable\','+(i+1)+')').addClass('btn btn-default').attr('type','button').text(i+1).appendTo($('#pager'));
 		}
-		$('<button>').on('click','$(document).trigger(\'drawTable\',\'all\')').addClass('btn btn-default').attr('type','button').text('all').appendTo($('#pager'));
+		$('<button>').on('click',function(){$(document).trigger('drawTable','all')}).addClass('btn btn-default').attr('type','button').text('all').appendTo($('#pager'));
 	});
 
 }).on('drawTable', function(d,num){
@@ -82,7 +82,7 @@ $(document).ready(function(){
 	var url = 'https://uploader.fono.jp/list'
 	if(typeof num == 'number'){
 		url += '/'+num;
-	}else if(num == null){
+	}else if(!num){
 		url += '/1';
 	}
 
