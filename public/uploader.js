@@ -10,8 +10,9 @@ $(function(){
 		var form_data = new FormData(form);
 		console.log(form_data);
 
-		var token = ['up'+genUID(),$('[name=body]').prop('files')[0].name];
-		console.log(token)
+		var token_id = 'up'+genUID();
+		var token_name = $('[name=body]').prop('files')[0].name;
+		$(document).trigger('createProgressbar',token_id);
 		
 		$.ajax({
 			url: 'https://uploader.fono.jp/upload',
@@ -19,7 +20,7 @@ $(function(){
 			xhr: function(){
 				var __xhr__ = $.ajaxSettings.xhr();
 				__xhr__.upload.addEventListener("progress", function(e){
-					$(document).trigger('updateProgressbar',[e,token]);
+					$(document).trigger('updateProgressbar',[e,token_id,token_name]);
 				}, false);
 				return __xhr__;
 			},
@@ -30,14 +31,16 @@ $(function(){
 			data: form_data,
 		}).done(function(result){
 			console.log('success',result);
+			$(document).trigger('destroyProgressbar',token_id);
 			$(document).trigger('drawTable');
 		}).fail(function(jqXHR, textStatus, errorThrown){
 			console.log('fail',jqXHR,textStatus,errorThrown);
+			$(document).trigger('destroyProgressbar',token_id);
+			$(document).trigger('drawTable');
 			alert('Uploading Failed!!');
 		});
 
 		$('#upfile')[0].reset();
-		$(document).trigger('drawTable');
 
 		return false;
 	});
@@ -46,24 +49,47 @@ $(function(){
 
 $(document).ready(function(){
 
-	if($('#upload_progress').length){
-		$(this).trigger('updateProgressbar');
-	}
-
 	if($("#file_list").length){
 		$(this).trigger('drawTable');
 	}	
+
+	if($("#pager").length){
+		$(this).trigger('drawPager');
+	}
 
 	if($(".dl_locked").length){
 		$(this).trigger('setLockedLink')
 	}
 
 
-}).on('drawTable', function(){
+}).on('drawPager', function(){
+	$.ajax({
+		url: 'https://uploader.fono.jp/info',
+		async: true,
+		method: 'GET',
+		dataType: 'json',
+	}).done(function(result){
+		
+		$('<
+		
+		for(var i=0; i < result.pages; i++){
+			$('<button>').attr('onclick','$(document).trigger(\'drawTable\','+(i+1)+')').addClass('btn btn-default').attr('type','button').text(i+1).appendTo($('#pager'));
+		}
+		$('<button>').on('click','$(document).trigger(\'drawTable\',\'all\')').addClass('btn btn-default').attr('type','button').text('all').appendTo($('#pager'));
+	});
+
+}).on('drawTable', function(d,num){
 	console.log('drawTable');
 	
+	var url = 'https://uploader.fono.jp/list'
+	if(typeof num == 'number'){
+		url += '/'+num;
+	}else if(num == null){
+		url += '/1';
+	}
+
 	$.ajax({
-		url: 'https://uploader.fono.jp/list',
+		url: url,
 		async: true,
 		method: 'GET',
 		dataType: 'json',
@@ -73,7 +99,7 @@ $(document).ready(function(){
 		table.empty();
 
 		result.forEach(function(row){
-			var tr = $('<tr>').prependTo(table);
+			var tr = $('<tr>').appendTo(table);
 
 			var dl_link = $('<a>').attr('href','/download/' + row.id);
 			if(row.dl_locked){
@@ -120,19 +146,25 @@ $(document).ready(function(){
 	});
 
 
-}).on('updateProgressbar', function(d,e,token){
+}).on('createProgressbar',function(d,token_id){
 
-	console.log(token);
+	console.log('createProgressbar',token_id);
+	$('<div>').addClass('progress-bar progress-bar-striped active').attr('role','progressbar').attr('aria-valuenow',0).attr('aria-valuemin',0).attr('aria-valuemax',100).attr('token',token_id).appendTo($('.progress_list'));
 	
-	if(e == void(0)){
-		$('#upload_progress').val(false);
-	}else{
-		console.log((e.loaded / e.total)*100 + "%");
-		$('#upload_progress').val(Math.floor(e.loaded / e.total * 100));
-		console.log(d,e);
-	}
+}).on('updateProgressbar', function(d,e,token_id,token_name){
+	if(e == void(0)){return};
+
+	console.log('updateProgressbar',token_id,token_name);
+	var percentage = Math.floor(e.loaded / e.total * 100);
+	var val = $('.progress_list').find('[token='+token_id+']')[0];
+	$(val).html('<span>'+token_name+':'+percentage+'%</span>').attr('aria-valuenow',percentage).width(percentage+'%');
 
 	return e;
+
+}).on('destroyProgressbar',function(d,token_id){
+
+	console.log('destroyProgressbar');
+	$('.progress_list').find('[token='+token_id+']')[0].remove();
 
 }).on('setLockedLink', function(d,e){
 	

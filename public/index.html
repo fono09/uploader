@@ -13,40 +13,45 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
+<link rel="stylesheet" href="uploader.css">
 <script type="text/javascript" src="uploader.js"></script>
 
 </head>
 <body>
 <div class="container">
-<h1>Uploader(v0.86 - beta)</h1>
+<h1>Uploader(v0.89 - beta)</h1>
 <p> bug report : fono(a t)fono(dot)jp or twitter (a t)fono09 </p>
 </div>
 <div class="container">
 <form id="upfile" method="post" action="#">
-	<div class ="form-group">
-		<label for="body">File to upload</label>
-		<input type="file" name="body" class="form-control">
+	<div class="form-inline">
+		<div class ="form-group">
+			<label for="body">File to upload</label>
+			<input type="file" name="body" class="form-control">
+		</div>
+		<div class="form-group">
+			<label for="comment">Comment</label>
+			<input type="comment" name="comment" class="form-control">
+		</div>
 	</div>
-	<div class="form-group">
-		<label for="comment">Comment</label>
-		<input type="comment" name="comment" class="form-control">
+	<div class="form-inline">
+		<div class="form-group">
+			<label for="delpass">Delete password</label>
+			<input type="password" name="delpass" class="form-control">
+		</div>
+		<div class="form-group">
+			<label for="dlpass">Download password</label>
+			<input type="password" name="dlpass" class="form-control">
+		</div>
+		<button class="btn btn-default" type="submit">Upload</button>
 	</div>
-	<div class="form-group">
-		<label for="delpass">Delete password</label>
-		<input type="password" name="delpass" class="form-control">
-	</div>
-	<div class="form-group">
-		<label for="dlpass">Download password</label>
-		<input type="password" name="dlpass" class="form-control">
-	</div>
-	<button class="btn btn-default" type="submit">Upload</button>
 </form>
-<progress max="100" id="upload_progress">現在、アップロード中です</progress>
 <div class="progress_list">
-
 </div>
 </div>
 <div class="container">
+<div id="pager" class="btn-group" role="group" aria-label="page">
+</div>
 <table id="file_list" class="table table-striped table-bordered table-condensed">
 </table>
 </div>

@@ -8,6 +8,7 @@ require 'erubis'
 require 'shared-mime-info'
 require 'rmagick'
 require 'securerandom'
+require 'kaminari/sinatra'
 
 enable :sessions
 set :session_secret, SecureRandom.hex(100) 
@@ -92,21 +93,32 @@ class Upfile < ActiveRecord::Base
 
 end
 
-get '/list' do
-	@upfiles = Upfile.all
+get '/info' do
+	files = Upfile.count
+	pages = (files / 25).ceil+1
+	return { 'files' => files, 'pages'=> pages }.to_json
+end
+
+
+get /\/list(\/(\d+))?/ do
+	page_num = params['captures'][1].to_i if params['captures']
+	unless page_num then
+		upfiles = Upfile.all.order("id desc")
+	else
+		per = 25
+		upfiles = Upfile.page(page_num).per(per).order("id desc")
+	end
 	files = [];
-	@upfiles.each do |upfile|
+	upfiles.each do |upfile|
 		files.push(upfile.to_hash_for_output);
 	end
-	files.to_json
+	return files.to_json
 end
 
 get '/show/:id' do
 	upfile = Upfile.find(params['id'])
 	upfile.to_hash_for_output.to_json
 end
-	
-
 	
 post '/upload' do
 	return 400 unless params[:body]
@@ -148,7 +160,8 @@ post '/download/:id' do
 	{id: upfile.id }.to_json
 end
 
-get /\/download\/([\d]+)(|:mime)/ do |id,mime| 
+get /\/download\/([\d]+)(:mime)?/ do |id,mime| 
+	
 	upfile = Upfile.find(id)
 
 	if upfile.dlpass && !session[upfile.id] then
@@ -158,7 +171,7 @@ get /\/download\/([\d]+)(|:mime)/ do |id,mime|
 	if mime=="" then
 		send_file "../src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream', :stream => true
 	else
-		send_file "../src/#{upfild.id}",:filename => upfile.name, :type=> MIME.check("./src/#{upfile.id}").content_type, :stream => true
+		send_file "../src/#{upfile.id}",:filename => upfile.name, :type=> MIME.check("./src/#{upfile.id}").content_type, :stream => true
 	end
 
 end
