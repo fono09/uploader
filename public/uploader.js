@@ -70,8 +70,6 @@ $(document).ready(function(){
 		dataType: 'json',
 	}).done(function(result){
 		
-		$('<
-		
 		for(var i=0; i < result.pages; i++){
 			$('<button>').attr('onclick','$(document).trigger(\'drawTable\','+(i+1)+')').addClass('btn btn-default').attr('type','button').text(i+1).appendTo($('#pager'));
 		}
