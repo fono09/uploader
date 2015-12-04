@@ -112,7 +112,10 @@ $(document).ready(function(){
 				'https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Fuploader.fono.jp%2F&ref_src=twsrc%5Etfw&text=Download%20'
 				+ row.name
 				+ '&url=https%3A%2F%2Fuploader.fono.jp%2Fcushon%2F'
-				+ row.id).text('Tweet');
+				+ row.id).text('Tweet').on('click', function(){
+					window.open(encodeURI(decodeURI(this.href)), 'tweetwindow', 'width=650, height=470, personalbar=0, toolbar=0, scrollbars=1, sizable=1');
+					return false;
+				});
 
 			$('<td>').text(row.id).appendTo(tr);
 			$('<td>').append(dl_link).appendTo(tr);
