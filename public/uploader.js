@@ -150,22 +150,24 @@ $(document).ready(function(){
 }).on('createProgressbar',function(d,token_id){
 
 	console.log('createProgressbar',token_id);
-	$('<div>').addClass('progress-bar progress-bar-striped active').attr('role','progressbar').attr('aria-valuenow',0).attr('aria-valuemin',0).attr('aria-valuemax',100).attr('token',token_id).appendTo($('.progress_list'));
+	var outer = $('<div>').addClass('progress').attr('token',token_id).appendTo($('.progress_list'));
+	var inner = $('<div>').addClass('progress-bar progress-bar-striped active').attr('role','progressbar').attr('aria-valuenow',0).attr('aria-valuemin',0).attr('aria-valuemax',100);
+
+	inner.appendTo(outer);
 	
 }).on('updateProgressbar', function(d,e,token_id,token_name){
-	if(e == void(0)){return};
+	if(e == null){return};
 
 	console.log('updateProgressbar',token_id,token_name);
 	var percentage = Math.floor(e.loaded / e.total * 100);
-	var val = $('.progress_list').find('[token='+token_id+']')[0];
-	$(val).html('<span>'+token_name+':'+percentage+'%</span>').attr('aria-valuenow',percentage).width(percentage+'%');
+	$('.progress_list [token='+token_id+'] div').html('<span>'+token_name+':'+percentage+'%</span>').attr('aria-valuenow',percentage).width(percentage+'%');
 
 	return e;
 
 }).on('destroyProgressbar',function(d,token_id){
 
 	console.log('destroyProgressbar');
-	$('.progress_list').find('[token='+token_id+']')[0].remove();
+	$('.progress_list [token='+token_id+']').remove();
 
 }).on('setLockedLink', function(d,e){
 	
