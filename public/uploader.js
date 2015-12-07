@@ -107,12 +107,13 @@ $(document).ready(function(){
 
 			var del_link = $('<a>').attr('href','#').on('click',function(e){ e.preventDefault(); ajaxPostDelete(row.id) });
 			del_link.text('locked');
+			
+			var tw_dl_url = encodeURI('https://uploader.fono.jp/cushon/'+row.id);
 
 			var tw_link = $('<a>').attr('href',
 				'https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Fuploader.fono.jp%2F&ref_src=twsrc%5Etfw&text=Download%20'
-				+ row.name
-				+ '&url=https%3A%2F%2Fuploader.fono.jp%2Fcushon%2F'
-				+ row.id).text('Tweet').on('click', function(){
+				+ row.name + ' ' + tw_dl_url
+				).text('Tweet').on('click', function(){
 					window.open(encodeURI(decodeURI(this.href)), 'tweetwindow', 'width=650, height=470, personalbar=0, toolbar=0, scrollbars=1, sizable=1');
 					return false;
 				});
