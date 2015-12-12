@@ -60,11 +60,6 @@ $(document).ready(function(){
 }).on('drawTable', function(d,num){
 	console.log('drawTable');
 
-	if(!num){
-		num = 1;
-	}
-	var pager = $('.switcher .pagination');
-
 	$.ajax({
 		url: 'https://uploader.fono.jp/info',
 		async: true,
@@ -72,6 +67,11 @@ $(document).ready(function(){
 		dataType: 'json',
 	}).done(function(result){
 		
+		if(!num){
+			num = 1;
+		}
+		var pager = $('.switcher .pagination');
+	
 		var prev_idx = $('.switcher .pagination li').index($('.switcher .pagination li.active'));
 		//生成前prev_idx = -1,再生成時は値の保全となる為必ず再生成前に実行
 		
@@ -110,11 +110,15 @@ $(document).ready(function(){
 		//相対のポジション指定
 
 
+		var children = $('.switcher .pagination li');
+		var active_children = $('.switcher .pagination li.active');
 		if(prev_idx == -1){
-			$('.switcher .pagination li').eq(1).addClass('active');
+			children.eq(1).addClass('active');
+			children.eq(result.pages+3).addClass('active');
 		}else if(prev_idx != num){
-			$('.switcher .pagination li.active').removeClass('active');
-			$('.switcher .pagination li').eq(num).addClass('active');
+			active_children.removeClass('active');
+			children.eq(num).addClass('active');
+			children.eq(result.pages+2+num).addClass('active');
 		}
 		//以前のポジション取得して違えばポジション更新
 
@@ -138,7 +142,7 @@ $(document).ready(function(){
 				dl_link.text(row.name);
 
 				var del_link = $('<a>').attr('href','#').on('click',function(e){ e.preventDefault(); ajaxPostDelete(row.id) });
-				del_link.text('locked');
+				del_link.text('delete');
 
 				var tw_dl_url = encodeURI('https://uploader.fono.jp/cushon/'+row.id);
 
@@ -158,10 +162,9 @@ $(document).ready(function(){
 				if(row.del_locked){
 					$('<td>').append(del_link).appendTo(tr);
 				}else{
-					$('<td>').text('free').appendTo(tr);
+					$('<td>').text('N/A').appendTo(tr);
 				}
 
-				$('<td>').text(row.dl_locked?'locked':'free').appendTo(tr);
 				$('<td>').append(tw_link).appendTo(tr);
 			});
 
@@ -172,7 +175,6 @@ $(document).ready(function(){
 			$('<td>').text('COMMENT').appendTo(label);
 			$('<td>').text('DATE').appendTo(label);
 			$('<td>').text('DEL').appendTo(label);
-			$('<td>').text('DL').appendTo(label);
 			$('<td>').text('TWEET').appendTo(label);
 
 		}).fail(function(jqXHR, textStatus, errorThrown){
@@ -180,6 +182,7 @@ $(document).ready(function(){
 		});
 
 	});
+	return false;
 
 
 }).on('createProgressbar',function(d,token_id){
