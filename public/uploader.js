@@ -78,16 +78,16 @@ $(document).ready(function(){
 		if($('.switcher .pagination li').length < result.pages+2){
 			$('.switcher .pagination').empty();
 			
-			var current = $('<li>').attr('onclick','$(document).trigger(\'drawTable\',\'prev\')').appendTo(pager);
+			var current = $('<li>').attr('onclick','$(document).trigger(\'drawTable\',\'prev\');return false').appendTo(pager);
 			$('<a>').attr('href','#').attr('aria-label','Previous').html('<span aria-hidden="true">&laquo;</span>').appendTo(current);
 				
 			for(var i = 0; i < result.pages; i++){
 				
-				current = $('<li>').attr('onclick','$(document).trigger("drawTable",'+(i+1)+')').appendTo(pager);
+				current = $('<li>').attr('onclick','$(document).trigger("drawTable",'+(i+1)+');return false').appendTo(pager);
 				$('<a>').attr('href','#').text(i+1).appendTo(current);
 			}
 			
-			current = $('<li>').attr('onclick','$(document).trigger("drawTable","next")').appendTo(pager);
+			current = $('<li>').attr('onclick','$(document).trigger("drawTable","next");return false').appendTo(pager);
 			$('<a>').attr('href','#').attr('aria-label','Next').html('<span aria-hidden="true">&raquo;</span>').appendTo(current);
 
 		}
@@ -172,7 +172,7 @@ $(document).ready(function(){
 				dl_link.text(row.name);
 
 				var del_link = $('<a>').attr('href','#').on('click',function(e){ e.preventDefault(); ajaxPostDelete(row.id) });
-				del_link.text('delete');
+				del_link.text('Del');
 
 				var tw_dl_url = encodeURI('https://uploader.fono.jp/cushon/'+row.id);
 

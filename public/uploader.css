@@ -1,3 +1,7 @@
 .progress_list {
 	margin: 1em 0 1em 0;
 }
+.cell-NAME,.cell-COMMENT {
+	word-break: break-all;
+}
+
