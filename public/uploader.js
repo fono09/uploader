@@ -132,6 +132,35 @@ $(document).ready(function(){
 			var table = $("#file_list");
 			table.empty();
 
+			var show_event = function(e){
+				console.log('show_event');
+				var toggle_class = $('#file_list tr td:contains("' + $(e.target).text() + '")').attr('class');
+				$('#file_list tr td.'+toggle_class).fadeIn();
+				if(localStorage.getItem('hide-'+toggle_class)){
+					localStorage.removeItem('hide-'+toggle_class);
+				}
+				$(e.target).fadeOut(null,function(){$(e.target).remove()});
+
+			}
+
+			var hide_event = function(e){
+				console.log('hide_event');
+				var toggle_class = $(e.target).attr('class');
+				var toggle_text = $(e.target).text();
+				var toggle_target = $('#file_list tr td.'+toggle_class);
+				var span = $('<span>').addClass('label label-default '+toggle_class).text(toggle_text).on('click',show_event).appendTo($('.hidden-columns'));
+				if(!localStorage.getItem('hide-'+toggle_class)){
+					localStorage.setItem('hide-'+toggle_class,true);
+				}
+				toggle_target.fadeOut();
+			}
+
+			var label = $('<tr>').appendTo(table);
+			var columns = ['ID','NAME','COMMENT','DATE','DEL','TWEET'];
+			columns.forEach(function(elem){
+				$('<td>').text(elem).addClass('cell-'+elem).appendTo(label).on('click',hide_event);
+			});
+
 			result.forEach(function(row){
 				var tr = $('<tr>').appendTo(table);
 
@@ -154,54 +183,34 @@ $(document).ready(function(){
 						return false;
 					});
 
-				$('<td>').text(row.id).appendTo(tr);
-				$('<td>').append(dl_link).appendTo(tr);
-				$('<td>').text(row.comment).appendTo(tr);
-				$('<td>').text(row.last_updated).appendTo(tr);
+				var cells = [];
+				cells.push($('<td>').text(row.id));
+				cells.push($('<td>').append(dl_link));
+				cells.push($('<td>').text(row.comment));
+				cells.push($('<td>').text(row.last_updated));
 
 				if(row.del_locked){
-					$('<td>').append(del_link).appendTo(tr);
+					cells.push($('<td>').append(del_link));
 				}else{
-					$('<td>').text('N/A').appendTo(tr);
+					cells.push($('<td>').text('N/A'));
 				}
 
-				$('<td>').append(tw_link).appendTo(tr);
-			});
-
-
-			var show_event = function(e){
-				console.log('show_event');
-				var toggle_target = $('#file_list tr td:contains("' + $(e.target).text() + '")');
-				var toggle_index = toggle_target.parent().children().index(toggle_target);
-				var cols = toggle_target.parent().children().length;
-				$('#file_list tr td').each(function(index,elem){
-					if(index % cols == toggle_index){
-						$(elem).fadeIn();
-					}
+				cells.push($('<td>').append(tw_link));
+				cells.forEach(function(elem,idx,arr){
+					elem.addClass('cell-'+columns[idx]).appendTo(tr);
 				});
-				$(e.target).fadeOut(null,function(){$(e.target).remove()});
-
-			}
-
-			var hide_event = function(e){
-				console.log('hide_event');
-				var toggle_index = $('#file_list tr td').index(e.target);
-				var cols = $(e.target).parent().children().length;
-				var span = $('<span>').addClass('label label-default').text($(e.target).text()).on('click',show_event).hide().appendTo($('.hidden-columns'));
-				$('#file_list tr td').each(function(index,elem){
-					if(index % cols == toggle_index){
-						$(elem).fadeOut();
-
-					}
-				});
-
-				span.fadeIn();
-			}
-			var label = $('<tr>').prependTo(table);
-			['ID','NAME','COMMENT','DATE','DEL','TWEET'].forEach(function(elem){
-				$('<td>').text(elem).appendTo(label).on('click',hide_event);
 			});
-
+			
+			columns.forEach(function(obj){
+				var target_class = 'cell-'+obj;
+				if(localStorage.getItem('hide-'+target_class)){
+					$('#file_list tr td.'+target_class).hide();
+					if($('.hidden-columns .'+target_class).length < 1){
+						$('<span>').addClass('label label-default '+target_class).text(obj).on('click',show_event).appendTo($('.hidden-columns'));
+					}
+				}
+			});
+					
 		}).fail(function(jqXHR, textStatus, errorThrown){
 			console.log('fail',jqXHR,textStatus,errorThrown);
 		});
