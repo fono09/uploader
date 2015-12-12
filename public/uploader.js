@@ -169,13 +169,38 @@ $(document).ready(function(){
 			});
 
 
+			var show_event = function(e){
+				console.log('show_event');
+				var toggle_target = $('#file_list tr td:contains("' + $(e.target).text() + '")');
+				var toggle_index = toggle_target.parent().children().index(toggle_target);
+				var cols = toggle_target.parent().children().length;
+				$('#file_list tr td').each(function(index,elem){
+					if(index % cols == toggle_index){
+						$(elem).fadeIn();
+					}
+				});
+				$(e.target).fadeOut(null,function(){$(e.target).remove()});
+
+			}
+
+			var hide_event = function(e){
+				console.log('hide_event');
+				var toggle_index = $('#file_list tr td').index(e.target);
+				var cols = $(e.target).parent().children().length;
+				var span = $('<span>').addClass('label label-default').text($(e.target).text()).on('click',show_event).hide().appendTo($('.hidden-columns'));
+				$('#file_list tr td').each(function(index,elem){
+					if(index % cols == toggle_index){
+						$(elem).fadeOut();
+
+					}
+				});
+
+				span.fadeIn();
+			}
 			var label = $('<tr>').prependTo(table);
-			$('<td>').text('ID').appendTo(label);
-			$('<td>').text('NAME').appendTo(label);
-			$('<td>').text('COMMENT').appendTo(label);
-			$('<td>').text('DATE').appendTo(label);
-			$('<td>').text('DEL').appendTo(label);
-			$('<td>').text('TWEET').appendTo(label);
+			['ID','NAME','COMMENT','DATE','DEL','TWEET'].forEach(function(elem){
+				$('<td>').text(elem).appendTo(label).on('click',hide_event);
+			});
 
 		}).fail(function(jqXHR, textStatus, errorThrown){
 			console.log('fail',jqXHR,textStatus,errorThrown);
