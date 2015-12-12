@@ -135,10 +135,10 @@ $(document).ready(function(){
 			var show_event = function(e){
 				console.log('show_event');
 				var toggle_class = $('#file_list tr td:contains("' + $(e.target).text() + '")').attr('class');
-				$('#file_list tr td.'+toggle_class).fadeIn();
 				if(localStorage.getItem('hide-'+toggle_class)){
 					localStorage.removeItem('hide-'+toggle_class);
 				}
+				$('#file_list tr td.'+toggle_class).fadeIn();
 				$(e.target).fadeOut(null,function(){$(e.target).remove()});
 
 			}
@@ -148,10 +148,11 @@ $(document).ready(function(){
 				var toggle_class = $(e.target).attr('class');
 				var toggle_text = $(e.target).text();
 				var toggle_target = $('#file_list tr td.'+toggle_class);
-				var span = $('<span>').addClass('label label-default '+toggle_class).text(toggle_text).on('click',show_event).appendTo($('.hidden-columns'));
+				var span = $('<span>').addClass('label label-default '+toggle_class).text(toggle_text).on('click',show_event).hide().appendTo($('.hidden-columns'));
 				if(!localStorage.getItem('hide-'+toggle_class)){
 					localStorage.setItem('hide-'+toggle_class,true);
 				}
+				span.fadeIn();
 				toggle_target.fadeOut();
 			}
 
