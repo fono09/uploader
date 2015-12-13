@@ -95,7 +95,7 @@ end
 
 get '/info' do
 	files = Upfile.count
-	pages = (files / 25).ceil+1
+	pages = (files / 25).ceil + (files%25!=0?1:0);
 	return { 'files' => files, 'pages'=> pages }.to_json
 end
 

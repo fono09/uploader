@@ -75,7 +75,7 @@ $(document).ready(function(){
 		var prev_idx = $('.switcher .pagination li').index($('.switcher .pagination li.active'));
 		//生成前prev_idx = -1,再生成時は値の保全となる為必ず再生成前に実行
 		
-		if($('.switcher .pagination li').length < result.pages+2){
+		if($('.switcher .pagination li').length != (result.pages+2)*2){
 			$('.switcher .pagination').empty();
 			
 			var current = $('<li>').attr('onclick','$(document).trigger(\'drawTable\',\'prev\');return false').appendTo(pager);
@@ -91,7 +91,7 @@ $(document).ready(function(){
 			$('<a>').attr('href','#').attr('aria-label','Next').html('<span aria-hidden="true">&raquo;</span>').appendTo(current);
 
 		}
-		//足りないか存在しなければ(再)生成
+		//存在しないか過不足の発生で(再)生成
 		
 		if(num == 'prev'){
 			num = prev_idx - 1;
