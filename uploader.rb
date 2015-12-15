@@ -26,7 +26,9 @@ ActiveRecord::Base.establish_connection(
 	database: 'uploader.db'
 )
 
-secret = YAML.load_file("./settings.yml")["secret"]
+settings = YAML.load_file('./settings.yml')
+SECRET = settings['secret']
+
 
 class CryptUtil 
 
@@ -93,6 +95,9 @@ class Upfile < ActiveRecord::Base
 
 end
 
+get '/' do
+	redirect('uploader/index.html')
+end
 get '/info' do
 	files = Upfile.count
 	pages = (files / 25).ceil + (files%25!=0?1:0);
@@ -147,7 +152,7 @@ post '/upload' do
 end
 
 post '/download/:id' do
-	if params['id'] == 'manager' && params['dlpass'] == secret then
+	if params['id'] == 'manager' && params['dlpass'] == SECRET then
 		session['manager'] = true
 		return {manager: true}.to_json
 	end
@@ -204,9 +209,9 @@ get '/cushon/:id' do
 	end
 
 	if File.exists?("./public/thumbs/#{upfile.id}") then
-		@image = "https://uploader.fono.jp/thumbs/#{upfile.id}"
+		@image = "/uploader/thumbs/#{upfile.id}"
 	else
-		@image = "https://uploader.fono.jp/download/#{upfile.id}:mime"
+		@image = "/uploader/download/#{upfile.id}:mime"
 	end
 
 	erb :cushon

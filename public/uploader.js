@@ -1,5 +1,6 @@
 'use strict';
 
+var default_path = '/uploader/'
 $(function(){
 
 	$('#upfile').submit(function (event){
@@ -15,7 +16,7 @@ $(function(){
 		$(document).trigger('createProgressbar',token_id);
 
 		$.ajax({
-			url: 'https://uploader.fono.jp/upload',
+			url: default_path+'upload',
 			async: true,
 			xhr: function(){
 				var __xhr__ = $.ajaxSettings.xhr();
@@ -61,7 +62,7 @@ $(document).ready(function(){
 	console.log('drawTable');
 
 	$.ajax({
-		url: 'https://uploader.fono.jp/info',
+		url: default_path+'info',
 		async: true,
 		method: 'GET',
 		dataType: 'json',
@@ -106,7 +107,7 @@ $(document).ready(function(){
 		}else if(typeof num == "string"){
 			num = 1;
 		}
-		var table_data_url = 'https://uploader.fono.jp/list/'+num;
+		var table_data_url = default_path+'list/'+num;
 		//相対のポジション指定
 
 
@@ -165,7 +166,7 @@ $(document).ready(function(){
 			result.forEach(function(row){
 				var tr = $('<tr>').appendTo(table);
 
-				var dl_link = $('<a>').attr('href','/download/' + row.id);
+				var dl_link = $('<a>').attr('href',default_path+'download/' + row.id);
 				if(row.dl_locked){
 					dl_link.addClass('dl_locked').on('click',function(e){ e.preventDefault(); ajaxPostDownload(row.id) });
 				}
@@ -174,10 +175,10 @@ $(document).ready(function(){
 				var del_link = $('<a>').attr('href','#').on('click',function(e){ e.preventDefault(); ajaxPostDelete(row.id) });
 				del_link.text('Del');
 
-				var tw_dl_url = encodeURI('https://uploader.fono.jp/cushon/'+row.id);
+				var tw_dl_url = encodeURI('http://fono.jp'+default_path+'cushon/'+row.id);
 
 				var tw_link = $('<a>').attr('href',
-					'https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Fuploader.fono.jp%2F&ref_src=twsrc%5Etfw&text=Download%20'
+					'https://twitter.com/intent/tweet?text=Download%20'
 					+ row.name + ' ' + tw_dl_url
 					).text('Tweet').on('click', function(){
 						window.open(encodeURI(decodeURI(this.href)), 'tweetwindow', 'width=650, height=470, personalbar=0, toolbar=0, scrollbars=1, sizable=1');
@@ -260,13 +261,13 @@ function ajaxPostDownload(id){
 
 			var dlpass = window.prompt('Download Password Required','');
 			$.ajax({
-				url: 'https://uploader.fono.jp/download/'+id,
+				url: default_path+'download/'+id,
 				method: 'POST',
 				dataType: 'json',
 				data: 'dlpass='+dlpass,
 			}).done(function(result){
 				console.log('sessionWriteSuccess',result);
-				location.href='https://uploader.fono.jp/download/'+id;
+				location.href=default_path+'download/'+id;
 			}).fail(function(result){
 				console.log('sessionWriteFail',result);
 				alert('Authentication Failed');
@@ -278,7 +279,7 @@ function ajaxPostDownload(id){
 
 				var delpass = window.prompt('Delete Password Required','');
 				$.ajax({
-					url: 'https://uploader.fono.jp/delete/'+id,
+					url: default_path+'delete/'+id,
 					method: 'POST',
 					detaType: 'json',
 					data: 'delpass='+delpass,

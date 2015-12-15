@@ -1,8 +1,8 @@
 <html>
 <head>
 <title>Download <%= @name %></title>
-<script type="text/javascript" src="/jquery-2.1.4.min.js"></script>
-<script type="text/javascript" src="/uploader.js"></script>
+<script type="text/javascript" src="../jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="../uploader.js"></script>
 <meta charset="UTF-8">
 <meta name="twitter:card" content="<%= (!@dlpass && @image) ? "summary_large_image" : "summary" %>">
 <meta name="twitter:site" content="@fono09">
@@ -13,7 +13,7 @@
 <% end %>
 </head>
 <body>
-<a href="/download/<%= @id %>" <% if @dlpass then %>class="dl_locked"<% end %>>Download <%= @name %></a><br>
+<a href="../download/<%= @id %>" <% if @dlpass then %>class="dl_locked"<% end %>>Download <%= @name %></a><br>
 
 <% if !@dlpass && @image then %>
 <img src="<%= @image =%>">
