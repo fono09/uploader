@@ -128,17 +128,13 @@ end
 post '/upload' do
 	return 400 unless params[:body]
 
+	params.reject!{ |k,v| v=="" }
+
 	upfile_params={}
 	upfile_params[:name] = params[:body][:filename]
-	
 	upfile_params[:comment] = params[:comment] 
-	upfile_params[:comment] = nil if params[:comment]==""
-
 	upfile_params[:delpass] = params[:delpass]
-	upfile_params[:delpass] = nil if params[:delpass]==""
-	
 	upfile_params[:dlpass] = params[:dlpass]
-	upfile_params[:dlpass] = nil if params[:dlpass] == ""
 	
 	return 400 if params[:body][:tempfile].size > 10**9
 
