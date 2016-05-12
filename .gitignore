@@ -3,3 +3,5 @@ uploader.db
 settings.yml
 src/
 public/thumbs/
+log/
+run/
