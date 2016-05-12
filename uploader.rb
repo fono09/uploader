@@ -1,21 +1,15 @@
-require 'active_record'
-require 'sinatra'
-require 'sinatra/xsendfile'
+require 'bundler'
+Bundler.require
+
 require 'json'
 require 'openssl'
 require 'yaml'
 require 'erubis'
 require 'shared-mime-info'
-require 'rmagick'
 require 'securerandom'
-require 'kaminari/sinatra'
 
 enable :sessions
 set :session_secret, SecureRandom.hex(100) 
-
-Sinatra::Xsendfile.replace_send_file!
-
-
 set :views, settings.root + '/templates'
 set :erb, :escape_html => true
 
@@ -98,12 +92,12 @@ end
 get '/' do
 	redirect('uploader/index.html')
 end
+
 get '/info' do
 	files = Upfile.count
 	pages = (files / 25).ceil + (files%25!=0?1:0);
 	return { 'files' => files, 'pages'=> pages }.to_json
 end
-
 
 get /\/list(\/(\d+))?/ do
 	page_num = params['captures'][1].to_i if params['captures']
@@ -170,11 +164,15 @@ get /\/download\/([\d]+)(:mime)?/ do |id,mime|
 	end
 
 	if mime=="" then
-		send_file "../src/#{upfile.id}",:filename => upfile.name, :type=>'Application/octet-stream', :stream => true
+		response.headers['X-Accel-Redirect'] =  "/uploader_files/#{upfile.id}"
+		response.headers['Content-Disposition'] = "attachment; filename=\"#{upfile.name}\""
+		response.headers['Content-Type'] = 'Application/octet-stream'
 	else
-		send_file "../src/#{upfile.id}",:filename => upfile.name, :type=> MIME.check("./src/#{upfile.id}").content_type, :stream => true
+		response.headers['X-Accel-Redirect'] =  "/uploader_files/#{upfile.id}"
+		response.headers['Content-Disposition'] = "attachment; filename=\"#{upfile.name}\""
+		response.headers['Content-Type'] = MIME.check("./src/#{upfile.id}").content_type
 	end
-
+	200
 end
 
 get '/download/manager' do

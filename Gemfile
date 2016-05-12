@@ -2,12 +2,14 @@
 source "https://rubygems.org"
 
 gem 'sqlite3'
-gem 'activerecord'
+gem 'activerecord', :require => 'active_record'
 gem 'sinatra'
 gem 'json'
-gem 'shared-mime-info'
 gem 'mime-types'
 gem 'rmagick'
-gem 'erubis'
 gem 'sinatra-xsendfile'
-gem 'kaminari'
+gem 'kaminari', :require => 'kaminari/sinatra'
+gem 'padrino-helpers'
+gem 'erubis'
+gem 'shared-mime-info'
+gem 'unicorn'
