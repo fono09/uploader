@@ -22,6 +22,8 @@ ActiveRecord::Base.establish_connection(
 
 settings = YAML.load_file('./settings.yml')
 SECRET = settings['secret']
+FILE_SIZE_MAX = settings['file_size_max']
+FILE_ENTRY_MAX = settings['file_entry_max']
 
 
 class CryptUtil 
@@ -89,8 +91,18 @@ class Upfile < ActiveRecord::Base
 
 end
 
+# Maintanance task
+Thread.abort_on_exception = true
+th = Thread.start do
+	while Upfile.count > FILE_ENTRY_MAX
+		upfile = Upfile.first
+		File.delete("./src/#{upfile.id}") if File.exist?("./src/#{upfile.id}") 
+		upfile.destroy
+	end
+end
+
 get '/' do
-	redirect('uploader/index.html')
+	send_file("./public/index.html")
 end
 
 get '/info' do
@@ -130,7 +142,7 @@ post '/upload' do
 	upfile_params[:delpass] = params[:delpass]
 	upfile_params[:dlpass] = params[:dlpass]
 	
-	return 400 if params[:body][:tempfile].size > 10**9
+	return 400 if params[:body][:tempfile].size > FILE_SIZE_MAX 
 
 	upfile = Upfile.new(upfile_params)
 	upfile.encrypt!
@@ -237,4 +249,4 @@ error ActiveRecord::RecordNotFound do
 	redirect 404
 end
 
-
+th.join
