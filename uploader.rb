@@ -91,16 +91,6 @@ class Upfile < ActiveRecord::Base
 
 end
 
-# Maintanance task
-Thread.abort_on_exception = true
-th = Thread.start do
-	while Upfile.count > FILE_ENTRY_MAX
-		upfile = Upfile.first
-		File.delete("./src/#{upfile.id}") if File.exist?("./src/#{upfile.id}") 
-		upfile.destroy
-	end
-end
-
 get '/' do
 	send_file("./public/index.html")
 end
@@ -248,5 +238,3 @@ end
 error ActiveRecord::RecordNotFound do
 	redirect 404
 end
-
-th.join
