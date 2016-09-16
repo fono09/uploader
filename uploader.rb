@@ -162,7 +162,7 @@ get /\/download\/([\d]+)(:mime)?/ do |id,mime|
 	upfile = Upfile.find(id)
 
 	if upfile.dlpass && !session[upfile.id] then
-		redirect to('/cushon/'+upfile.id.to_s)
+		redirect to('/uploader/cushon/'+upfile.id.to_s)
 	end
 
 	if mime=="" then
@@ -178,7 +178,7 @@ get /\/download\/([\d]+)(:mime)?/ do |id,mime|
 end
 
 get '/download/manager' do
-	redirect to('/')
+	redirect to('/uploader')
 end
 
 post '/delete/:id' do
