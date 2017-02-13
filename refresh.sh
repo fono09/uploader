@@ -8,5 +8,3 @@ mkdir src
 
 rm -rv public/thumbs
 mkdir public/thumbs
-
-passenger-config restart-app /var/www/uploader
