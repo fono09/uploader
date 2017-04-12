@@ -13,6 +13,8 @@ set :session_secret, SecureRandom.hex(100)
 set :views, settings.root + '/templates'
 set :erb, :escape_html => true
 
+register Kaminari::Helpers::SinatraHelpers
+
 ActiveRecord::Base.default_timezone = :local
 
 ActiveRecord::Base.establish_connection(
@@ -24,7 +26,6 @@ settings = YAML.load_file('./settings.yml')
 SECRET = settings['secret']
 FILE_SIZE_MAX = settings['file_size_max']
 FILE_ENTRY_MAX = settings['file_entry_max']
-
 
 class CryptUtil 
 

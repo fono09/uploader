@@ -4,7 +4,7 @@ worker_processes 8
 working_directory @dir
 
 timeout 300
-listen "#{@dir}run/unicorn.sock", backlog: 1024
+listen 4567, backlog: 1024
 
 pid "#{@dir}run/unicorn.pid"
 
