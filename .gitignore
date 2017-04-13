@@ -1,7 +1,8 @@
 vendor/
 uploader.db
 settings.yml
-src/
+src/*
 public/thumbs/
-log/
-run/
+log/*
+run/*
+uploader.tar
