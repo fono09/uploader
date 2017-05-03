@@ -6,3 +6,4 @@ public/thumbs/
 log/*
 run/*
 uploader.tar
+Gemfile.lock
