@@ -1,6 +1,7 @@
 'use strict';
 
-var base_uri = 'https://fono.jp/uploader/'
+var base_uri = location.pathname.split('/').slice(0,-1).join('/');
+
 $(function(){
 
 	$('#upfile').submit(function (event){
