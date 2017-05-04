@@ -1,6 +1,6 @@
 'use strict';
 
-var base_uri = location.host + '/' + location.pathname.split('/').slice(0,-1).join('/');
+var base_uri = location.protocol + '//' + location.host + '/' + location.pathname.split('/').slice(0,-1).join('/');
 
 $(function(){
 
