@@ -13,6 +13,7 @@ set :session_secret, SecureRandom.hex(100)
 set :views, settings.root + '/templates'
 set :erb, :escape_html => true
 
+Time.zone = "Tokyo"
 ActiveRecord::Base.default_timezone = :local
 
 ActiveRecord::Base.establish_connection(
