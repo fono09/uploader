@@ -1,7 +1,7 @@
 version: '2'
 services:
         uploader:
-                image: fono09/uploader
+                image: fono09/uploader:latest
                 volumes:
                         - /var/www/uploader:/var/www/uploader
                         - /etc/localtime:/etc/localtime:ro
