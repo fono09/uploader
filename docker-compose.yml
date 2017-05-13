@@ -4,5 +4,4 @@ services:
                 image: fono09/uploader:latest
                 volumes:
                         - /var/www/uploader:/var/www/uploader
-                        - /etc/localtime:/etc/localtime:ro
                 restart: always
