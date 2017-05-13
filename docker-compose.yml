@@ -4,8 +4,8 @@ services:
                 build: .
                 #image: fono09/uploader:latest
                 volumes:
+                        - /var/www/uploader/run:/var/www/uploader/run
                         - /var/www/uploader/src:/var/www/uploader/src
                         - /var/www/uploader/log:/var/www/uploader/log
-                        - /var/www/uploader/run:/var/www/uploader/run
                         - /etc/localtime:/etc/localtime:ro
                 restart: always
