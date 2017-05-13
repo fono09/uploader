@@ -7,7 +7,7 @@ RUN apk add --update --no-cache git imagemagick-dev sqlite sqlite-dev make gcc m
 	mkdir -p /var/www/uploader/src && mkdir -p /var/www/uploader/public/thumbs && \
 	cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
 	apk del tzdata && \
-	cd /var/www/uploader && bundle && \
+	cd /var/www/uploader && bundle install && \
 	if [ ! -e uploader.db ]; then sqlite3 uploader.db < create_table.sql; fi
 
 WORKDIR /var/www/uploader
