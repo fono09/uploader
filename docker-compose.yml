@@ -1,11 +1,13 @@
 version: '2'
 services:
         uploader:
-                build: .
-                #image: fono09/uploader:latest
+                # build: .
+                image: fono09/uploader:latest
                 volumes:
                         - /var/www/uploader/run:/var/www/uploader/run
                         - /var/www/uploader/src:/var/www/uploader/src
                         - /var/www/uploader/log:/var/www/uploader/log
+                        - /var/www/uploader/settings.yml:/var/www/uploader/settings.yml
+                        - /var/www/uploader/uploader.db:/var/www/uploader/uploader.db
                         - /etc/localtime:/etc/localtime:ro
                 restart: always
