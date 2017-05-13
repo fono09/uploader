@@ -102,5 +102,3 @@ while Upfile.count > FILE_ENTRY_MAX
 	th.join
 end
 exit
-
-
