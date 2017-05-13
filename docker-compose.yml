@@ -1,8 +1,8 @@
 version: '2'
 services:
         uploader:
-                #build: .
-                image: fono09/uploader:latest
+                build: .
+                #image: fono09/uploader:latest
                 volumes:
                         - /var/www/uploader:/var/www/uploader
                 environment:
