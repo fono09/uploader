@@ -5,10 +5,10 @@ RUN apk add --update --no-cache git imagemagick-dev sqlite sqlite-dev make gcc m
 	git clone https://github.com/fono09/uploader /var/www/uploader && \
 	mkdir -p /var/www/uploader/run && mkdir -p /var/www/uploader/log && \
 	mkdir -p /var/www/uploader/src && mkdir -p /var/www/uploader/public/thumbs && \
-	sqlite3 /var/www/uploader/uploader.db < /var/www/uploader/create_table.sql && \
-	cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
-	apk del tzdata && cd /var/www/uploader && bundle
+	cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
+	apk del tzdata && \
+	cd /var/www/uploader && bundle
 
 WORKDIR /var/www/uploader
 
-CMD ["unicorn", "-c", "unicorn.rb"]
+CMD ["./entrypoint.sh"]
