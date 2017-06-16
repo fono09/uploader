@@ -1,6 +1,6 @@
 'use strict';
 
-var base_uri = location.protocol + '//' + location.host + '/' + location.pathname.split('/').slice(0,-1).join('/');
+var api_url = location.protocol + '//' + location.host + '/';
 
 $(function(){
 
@@ -17,7 +17,7 @@ $(function(){
 		$(document).trigger('createProgressbar',token_id);
 
 		$.ajax({
-			url: base_uri+'upload',
+			url: api_url+'upload',
 			async: true,
 			xhr: function(){
 				var __xhr__ = $.ajaxSettings.xhr();
@@ -63,7 +63,7 @@ $(document).ready(function(){
 	console.log('drawTable');
 
 	$.ajax({
-		url: base_uri+'info',
+		url: api_url+'info',
 		async: true,
 		method: 'GET',
 		dataType: 'json',
@@ -108,7 +108,7 @@ $(document).ready(function(){
 		}else if(typeof num == "string"){
 			num = 1;
 		}
-		var table_data_url = base_uri+'list/'+num;
+		var table_data_url = api_url+'list/'+num;
 		//相対のポジション指定
 
 
@@ -167,7 +167,7 @@ $(document).ready(function(){
 			result.forEach(function(row){
 				var tr = $('<tr>').appendTo(table);
 
-				var dl_link = $('<a>').attr('href',base_uri+'download/' + row.id);
+				var dl_link = $('<a>').attr('href',api_url+'download/' + row.id);
 				if(row.dl_locked){
 					dl_link.addClass('dl_locked').on('click',function(e){ e.preventDefault(); ajaxPostDownload(row.id) });
 				}
@@ -176,7 +176,7 @@ $(document).ready(function(){
 				var del_link = $('<a>').attr('href','#').on('click',function(e){ e.preventDefault(); ajaxPostDelete(row.id) });
 				del_link.text('Del');
 
-				var tw_dl_url = encodeURI(base_uri+'cushon/'+row.id);
+				var tw_dl_url = encodeURI(api_url+'cushon/'+row.id);
 
 				var tw_link = $('<a>').attr('href',
 					'https://twitter.com/intent/tweet?text=Download%20'
@@ -262,13 +262,13 @@ function ajaxPostDownload(id){
 
 			var dlpass = window.prompt('Download Password Required','');
 			$.ajax({
-				url: base_uri+'download/'+id,
+				url: api_url+'download/'+id,
 				method: 'POST',
 				dataType: 'json',
 				data: 'dlpass='+dlpass,
 			}).done(function(result){
 				console.log('sessionWriteSuccess',result);
-				location.href=base_uri+'download/'+id;
+				location.href=api_url+'download/'+id;
 			}).fail(function(result){
 				console.log('sessionWriteFail',result);
 				alert('Authentication Failed');
@@ -280,7 +280,7 @@ function ajaxPostDownload(id){
 
 				var delpass = window.prompt('Delete Password Required','');
 				$.ajax({
-					url: base_uri+'delete/'+id,
+					url: api_url+'delete/'+id,
 					method: 'POST',
 					detaType: 'json',
 					data: 'delpass='+delpass,
