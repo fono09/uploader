@@ -5,8 +5,6 @@ RUN apk add --update --no-cache git imagemagick-dev sqlite sqlite-dev make gcc m
 	git clone https://github.com/fono09/uploader /var/www/uploader && \
 	mkdir -p /var/www/uploader/run && mkdir -p /var/www/uploader/log && \
 	mkdir -p /var/www/uploader/src && mkdir -p /var/www/uploader/public/thumbs && \
-	cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
-	apk del tzdata && \
 	cd /var/www/uploader && bundle && \
 	if [ ! -e uploader.db ]; then sqlite3 uploader.db < create_table.sql; fi
 
